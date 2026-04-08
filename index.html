@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LFT México">
+    <meta name="description" content="Calculadora Laboral México 2026: ISR, IMSS, INFONAVIT, AFORE, Fondo de Ahorro">
+    <title>Calculadora Laboral México 2026 | LFT + IMSS + INFONAVIT</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="logo-area">
+        <h1 id="mainTitle">Calculadora Laboral México 2026</h1>
+        <p class="subtitle" id="subtitle">LFT · IMSS · INFONAVIT · AFORE · Fondo de Ahorro</p>
+    </div>
+    <div class="controls">
+        <button id="modo-btn" class="theme-toggle" aria-label="Modo oscuro/claro">🌙</button>
+        <div class="lang-switch" id="langSwitch">
+            <span class="lang es">🇲🇽</span>
+            <span class="lang en">🇺🇸</span>
+            <div class="slider"></div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <!-- ========== TARJETAS PRINCIPALES (PUERTA DE ENTRADA) ========== -->
+    <div class="hero-cards">
+        <div class="hero-card" data-tool="salary">
+            <div class="hero-icon">💰</div>
+            <h3 id="heroSalaryTitle">Calculadora de Salario</h3>
+            <p id="heroSalaryDesc">ISR · IMSS · Subsidio · Neto</p>
+            <button class="hero-btn" id="openSalaryBtn">Calcular →</button>
+        </div>
+        <div class="hero-card" data-tool="afore">
+            <div class="hero-icon">🏦</div>
+            <h3 id="heroAforeTitle">Proyección AFORE</h3>
+            <p id="heroAforeDesc">¿Cuánto tendrás al retirarte?</p>
+            <button class="hero-btn" id="openAforeBtn">Proyectar →</button>
+        </div>
+    </div>
+
+    <!-- ========== PANEL PRINCIPAL: CALCULADORA DE SALARIO ========== -->
+    <div id="salaryPanel" class="calculator-panel active-panel">
+        <!-- SECCIÓN INGRESOS -->
+        <div class="card">
+            <div class="card-header">
+                <h3 id="incomeTitle">📋 Ingresos</h3>
+                <button class="collapse-btn" data-collapse="incomeCollapse">−</button>
+            </div>
+            <div id="incomeCollapse" class="collapse-content">
+                <div class="income-grid">
+                    <div class="input-group">
+                        <label id="salaryBaseLabel">Salario base diario (MXN)</label>
+                        <input type="number" id="dailyWageInput" placeholder="Ej: 500" step="any" value="500">
+                    </div>
+                    <div class="input-group">
+                        <label id="honorariosLabel">Honorarios (MXN/mes)</label>
+                        <input type="number" id="honorariosInput" placeholder="Ej: 2000" step="any" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label id="regaliasLabel">Regalías (MXN/mes)</label>
+                        <input type="number" id="regaliasInput" placeholder="Ej: 1000" step="any" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label id="comisionesLabel">Comisiones (MXN/mes)</label>
+                        <input type="number" id="comisionesInput" placeholder="Ej: 1500" step="any" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label id="rendimientosLabel">Rendimientos financieros (MXN/mes)</label>
+                        <input type="number" id="rendimientosInput" placeholder="Ej: 500" step="any" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN PERIODICIDAD -->
+        <div class="card">
+            <div class="card-header">
+                <h3 id="periodTitle">📅 Periodicidad de pago</h3>
+                <button class="collapse-btn" data-collapse="periodCollapse">−</button>
+            </div>
+            <div id="periodCollapse" class="collapse-content">
+                <div class="two-columns">
+                    <div class="input-group">
+                        <label id="periodTypeLabel">Tipo de periodo</label>
+                        <select id="periodSelect">
+                            <option value="diario">Diario (1 día)</option>
+                            <option value="semanal">Semanal (7 días)</option>
+                            <option value="quincenal" selected>Quincenal (15 días)</option>
+                            <option value="mensual">Mensual (30 días)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label id="daysWorkedLabel">Días trabajados</label>
+                        <input type="number" id="daysWorkedInput" min="1" max="31" value="15">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DEDUCCIONES OBLIGATORIAS -->
+        <div class="card">
+            <div class="card-header">
+                <h3 id="deductionsOblTitle">📊 Deducciones obligatorias</h3>
+                <button class="collapse-btn" data-collapse="obligatoryCollapse">−</button>
+            </div>
+            <div id="obligatoryCollapse" class="collapse-content">
+                <div class="results-compact">
+                    <div class="compact-item">
+                        <span id="imssWorkerLabel">IMSS trabajador</span>
+                        <span id="imssWorkerValue">$0.00</span>
+                    </div>
+                    <div class="compact-item">
+                        <span id="isrLabel">ISR retenido</span>
+                        <span id="isrValue">$0.00</span>
+                    </div>
+                    <div class="compact-item">
+                        <span id="subsidioLabel">Subsidio al empleo</span>
+                        <span id="subsidioValue">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DEDUCCIONES ADICIONALES (Fondo de Ahorro + Préstamos) -->
+        <div class="card">
+            <div class="card-header">
+                <h3 id="deductionsAddTitle">➕ Deducciones adicionales</h3>
+                <button class="collapse-btn" data-collapse="additionalCollapse">+</button>
+            </div>
+            <div id="additionalCollapse" class="collapse-content collapsed">
+                <div class="two-columns">
+                    <div class="input-group">
+                        <label id="savingsFundLabel">Fondo de ahorro (% del salario)</label>
+                        <input type="number" id="savingsFundPercentInput" step="0.5" min="0" max="13" value="0" placeholder="Ej: 6.5">
+                        <small class="input-help" id="savingsFundHelp">Máximo 13% (tope 13x UMA)</small>
+                    </div>
+                    <div class="input-group">
+                        <label id="infonavitLoanLabel">Préstamo INFONAVIT (MXN/mes)</label>
+                        <input type="number" id="infonavitLoanInput" placeholder="Ej: 500" step="any" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label id="otherDeductionsLabel">Otras deducciones (MXN/mes)</label>
+                        <input type="number" id="otherDeductionsInput" placeholder="Ej: 300" step="any" value="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTADOS PRINCIPALES -->
+        <div class="card results-card">
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label" id="totalIncomeLabel">Total de ingresos mensuales</span>
+                    <span class="result-value" id="totalIncome">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label" id="dailySalaryLabel">Equivalente diario</span>
+                    <span class="result-value" id="dailyEquivalent">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label" id="totalDeductionsLabel">Total de deducciones</span>
+                    <span class="result-value" id="totalDeductions">$0.00</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label net-salary" id="netSalaryLabel">Sueldo neto mensual</span>
+                    <span class="result-value net-salary" id="netSalary">$0.00</span>
+                </div>
+            </div>
+            <button class="calc-btn" id="calcSalaryBtn">📊 Calcular nómina</button>
+        </div>
+
+        <!-- COSTO PATRONAL (colapsable) -->
+        <div class="card">
+            <div class="card-header">
+                <h3 id="employerCostTitle">🏢 Costo total para el patrón</h3>
+                <button class="collapse-btn" data-collapse="employerCollapse">+</button>
+            </div>
+            <div id="employerCollapse" class="collapse-content collapsed">
+                <div class="results-compact">
+                    <div class="compact-item">
+                        <span id="employerImssLabel">IMSS patrón</span>
+                        <span id="employerImss">$0.00</span>
+                    </div>
+                    <div class="compact-item">
+                        <span id="employerInfonavitLabel">INFONAVIT (5% patrón)</span>
+                        <span id="employerInfonavit">$0.00</span>
+                    </div>
+                    <div class="compact-item">
+                        <span id="employerSavingsLabel">Aportación fondo ahorro</span>
+                        <span id="employerSavings">$0.00</span>
+                    </div>
+                    <div class="compact-item highlight">
+                        <span id="totalCostLabel">Costo total patrón</span>
+                        <span id="totalEmployerCost">$0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== PANEL AFORE ========== -->
+    <div id="aforePanel" class="calculator-panel">
+        <div class="card">
+            <h3>📈 Proyección de Ahorro para el Retiro (AFORE)</h3>
+            <div class="two-columns">
+                <div class="input-group">
+                    <label>Salario mensual actual (MXN)</label>
+                    <input type="number" id="aforeSalaryInput" value="15000">
+                </div>
+                <div class="input-group">
+                    <label>Edad actual (años)</label>
+                    <input type="number" id="currentAgeInput" min="18" max="65" value="30">
+                </div>
+                <div class="input-group">
+                    <label>Edad de retiro deseada</label>
+                    <input type="number" id="retirementAgeInput" min="60" max="75" value="65">
+                </div>
+                <div class="input-group">
+                    <label>Rendimiento anual estimado (%)</label>
+                    <input type="number" id="returnRateInput" step="0.1" value="6.5">
+                </div>
+            </div>
+            <button class="calc-btn" id="calcAforeBtn">🔮 Calcular proyección</button>
+            
+            <div class="results-grid" id="aforeResults">
+                <div class="result-item">
+                    <span class="result-label">Aportación patronal mensual</span>
+                    <span class="result-value" id="patronalMonthly">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Aportación trabajador mensual</span>
+                    <span class="result-value" id="workerMonthly">$0.00</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">Saldo estimado al retiro</span>
+                    <span class="result-value net-salary" id="finalBalance">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Pensión mensual estimada*</span>
+                    <span class="result-value" id="monthlyPension">$0.00</span>
+                </div>
+            </div>
+            <p class="note">*Estimación con rendimiento histórico promedio (4% de retiro seguro).</p>
+        </div>
+    </div>
+
+    <!-- ========== PANEL INFONAVIT ========== -->
+    <div id="infonavitPanel" class="calculator-panel">
+        <div class="card">
+            <h3>🏠 Simulador de Crédito INFONAVIT</h3>
+            <div class="two-columns">
+                <div class="input-group">
+                    <label>Salario mensual actual (MXN)</label>
+                    <input type="number" id="infonavitSalaryInput" value="15000">
+                </div>
+                <div class="input-group">
+                    <label>Puntuación (0-120 puntos)</label>
+                    <input type="number" id="puntuacionInput" min="0" max="120" value="80">
+                </div>
+                <div class="input-group">
+                    <label>¿Empleo formal vigente?</label>
+                    <select id="empleoVigenteSelect">
+                        <option value="si">Sí</option>
+                        <option value="no">No</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Meses cotizados ante IMSS</label>
+                    <input type="number" id="mesesCotizadosInput" min="0" value="24">
+                </div>
+            </div>
+            <button class="calc-btn" id="calcInfonavitBtn">🏠 Simular crédito</button>
+            
+            <div class="results-grid" id="infonavitResults">
+                <div class="result-item">
+                    <span class="result-label">Monto aproximado de crédito</span>
+                    <span class="result-value" id="creditAmount">$0.00</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Mensualidad estimada (30% del salario)</span>
+                    <span class="result-value" id="monthlyPayment">$0.00</span>
+                </div>
+                <div class="result-item highlight">
+                    <span class="result-label">Estatus de candidato</span>
+                    <span class="result-value" id="candidateStatus">Evaluando...</span>
+                </div>
+            </div>
+            <p class="note">*Requisitos mínimos: 116 puntos, 12 meses cotizados, empleo vigente.</p>
+        </div>
+    </div>
+
+    <!-- ========== MÁS HERRAMIENTAS (COLAPSABLE) ========== -->
+    <div class="more-tools">
+        <button class="more-tools-btn" id="moreToolsBtn">
+            <span>🔧 Más herramientas</span>
+            <span class="arrow">▼</span>
+        </button>
+        <div class="more-tools-content" id="moreToolsContent">
+            <div class="tools-grid">
+                <div class="tool-card" data-tool="vacaciones">
+                    <span>🏖️</span>
+                    <span>Prima vacacional</span>
+                </div>
+                <div class="tool-card" data-tool="aguinaldo">
+                    <span>🎄</span>
+                    <span>Aguinaldo</span>
+                </div>
+                <div class="tool-card" data-tool="finiquito">
+                    <span>📄</span>
+                    <span>Finiquito</span>
+                </div>
+                <div class="tool-card" data-tool="salarioMinimo">
+                    <span>⚖️</span>
+                    <span>Salario mínimo 2026</span>
+                </div>
+                <div class="tool-card" data-tool="uma">
+                    <span>📊</span>
+                    <span>Valor UMA 2026</span>
+                </div>
+            </div>
+            <p class="tools-note" id="toolsNote">Próximamente: más calculadoras laborales</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p id="footerText">© 2026 LFT MX — Datos basados en tablas oficiales IMSS, INFONAVIT y SAT | Actualizado 2026</p>
+</footer>
+
+<script src="js/tax-tables.js"></script>
+<script src="js/imss-tables.js"></script>
+<script src="js/translations.js"></script>
+<script src="js/calculators.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
