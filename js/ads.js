@@ -1,16 +1,15 @@
-// ============================================================
+// ============================================
 // PUBLICIDAD (Google AdSense)
-// ============================================================
-
+// ============================================
 function initAds() {
-  // Push inicial para todos los ads
+  // Push inicial para cargar todos los anuncios
   try {
     (window.adsbygoogle = window.adsbygoogle || []).push({});
   } catch(e) {
-    console.warn('AdSense not loaded');
+    console.warn('AdSense no cargado aún');
   }
   
-  // Lazy loading con Intersection Observer
+  // Lazy loading: cargar anuncios solo cuando entran en viewport
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -30,4 +29,5 @@ function initAds() {
   });
 }
 
+// Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', initAds);
