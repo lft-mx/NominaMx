@@ -3,27 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora Laboral México | Sueldo Neto, ISR, IMSS 2026</title>
-<meta name="description" content="Calcula tu sueldo neto después de impuestos. ISR, IMSS, Infonavit y fondo de ahorro.">
+<title>NominaMx · Tu dinero real después de impuestos</title>
+<meta name="description" content="Descubre cuánto dinero REAL te queda al mes después de impuestos en México. Calcula ISR, IMSS, subsidio, prima dominical y más.">
 <meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXX">
 <link rel="stylesheet" href="css/styles.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-<!-- Espacio publicitario top -->
 <div class="ad-container ad-top">
   <div class="ad-label">Publicidad</div>
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-       data-ad-slot="1234567890"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXX" data-ad-slot="1234567890" data-ad-format="auto"></ins>
 </div>
 
 <header>
-  <h1 id="titulo">💰 Calculadora Laboral México</h1>
+  <div class="logo">
+    <h1>💰 Nomina<span class="highlight">Mx</span></h1>
+    <p class="tagline">Tu dinero real después de impuestos</p>
+  </div>
   <div class="controls">
     <button class="theme-btn" id="themeBtn">🌙</button>
     <div class="lang-switch" id="langSwitch">
@@ -35,18 +32,22 @@
 </header>
 
 <main class="container">
-  <div class="card">
+  <section class="hero">
+    <h2>📉 ¿Cuánto dinero <span class="gradient">REAL</span> te queda al mes?</h2>
+    <p>Calcula tu sueldo neto después de impuestos, descubre cuánto pagas y recibe recomendaciones personalizadas.</p>
+  </section>
+
+  <div class="card calculator-card">
     <div class="tabs">
       <button class="tab active" data-modo="bruto">📈 Sueldo Bruto → Neto</button>
       <button class="tab" data-modo="neto">📉 Sueldo Neto → Bruto</button>
     </div>
 
-    <!-- MODO BRUTO -->
     <div id="modoBruto">
       <div class="row-2cols">
         <div class="form-group">
           <label>💰 Sueldo por periodo</label>
-          <input type="number" id="sueldo" value="8500">
+          <input type="text" id="sueldo" class="money-input" placeholder="$0.00" value="8500">
         </div>
         <div class="form-group">
           <label>📅 Periodo de pago</label>
@@ -60,35 +61,40 @@
       <div class="row-2cols">
         <div class="form-group">
           <label>🎯 Bonos / Comisiones</label>
-          <input type="number" id="bonos" value="0">
+          <input type="text" class="money-input" id="bonos" placeholder="$0.00" value="0">
         </div>
         <div class="form-group">
-          <label>🏠 Descuento Infonavit</label>
-          <input type="number" id="infonavit" value="0">
+          <label>📅 Domingos trabajados</label>
+          <input type="number" id="domingos" value="0" step="1" min="0">
+          <small>+25% extra por domingo</small>
         </div>
       </div>
       <div class="row-2cols">
         <div class="form-group">
-          <label>🛒 Vales de despensa</label>
-          <input type="number" id="valesDespensa" value="0">
+          <label>🛒 Vales de despensa (exentos)</label>
+          <input type="text" class="money-input" id="valesDespensa" placeholder="$0.00" value="0">
         </div>
         <div class="form-group">
           <label>🏦 Fondo de ahorro (tu aportación)</label>
-          <input type="number" id="fondoAhorro" value="0">
+          <input type="text" class="money-input" id="fondoAhorro" placeholder="$0.00" value="0">
         </div>
       </div>
-      <div class="form-group">
-        <label>💰 Salario Base de Cotización SBC (diario)</label>
-        <input type="number" id="sbc" value="350">
-        <small>Usado para calcular IMSS</small>
+      <div class="row-2cols">
+        <div class="form-group">
+          <label>🏠 Descuento Infonavit</label>
+          <input type="text" class="money-input" id="infonavit" placeholder="$0.00" value="0">
+        </div>
+        <div class="form-group">
+          <label>💰 SBC diario <span class="tooltip" data-tooltip="Salario Base de Cotización. Si no lo sabes, déjalo vacío y se calcula automáticamente.">ⓘ</span></label>
+          <input type="text" class="money-input" id="sbc" placeholder="Automático" value="">
+        </div>
       </div>
     </div>
 
-    <!-- MODO NETO -->
     <div id="modoNeto" style="display:none;">
       <div class="form-group">
         <label>💵 ¿Cuánto te depositan?</label>
-        <input type="number" id="netoDeposito" value="7200">
+        <input type="text" class="money-input" id="netoDeposito" placeholder="$0.00" value="7200">
       </div>
       <div class="form-group">
         <label>📅 Periodo de pago</label>
@@ -99,62 +105,56 @@
         </select>
       </div>
       <div class="form-group">
-        <label>💰 Salario Base de Cotización SBC (diario)</label>
-        <input type="number" id="sbcNeto" value="350">
+        <label>💰 SBC diario (opcional)</label>
+        <input type="text" class="money-input" id="sbcNeto" placeholder="Automático" value="">
       </div>
     </div>
 
     <button class="btn" id="btnCalcular">🔢 Calcular sueldo neto</button>
 
-    <!-- Ad in-content -->
-    <div class="ad-container ad-incontent">
-      <div class="ad-label">Publicidad</div>
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-           data-ad-slot="1234567893"
-           data-ad-format="rectangle"></ins>
+    <div class="simulator" id="simulatorPanel" style="display:none;">
+      <h4>🎚️ Simulador: ¿qué pasa si cambio mi sueldo?</h4>
+      <input type="range" id="simSlider" min="0" max="50000" step="500" value="8500">
+      <div class="sim-values">
+        <span>💰 <span id="simBruto">$8,500</span></span>
+        <span>→</span>
+        <span>💵 <span id="simNeto">$0</span></span>
+      </div>
+      <div id="simInsight" class="insight-small"></div>
     </div>
 
     <div id="resultados" class="resultado" style="display:none;">
-      <h3 id="resumenTitulo">📊 Resumen de nómina</h3>
+      <div class="resultado-header">
+        <h3>📊 Tu resumen personal</h3>
+        <button id="guardarBtn" class="btn-small">💾 Guardar cálculo</button>
+      </div>
       <div id="detalleResultados"></div>
       <div class="grafica-container">
         <canvas id="graficaPorcentajes"></canvas>
       </div>
+      <div id="insights" class="insights"></div>
       <div id="comparacionMetodos" class="comparacion"></div>
     </div>
   </div>
 
-  <!-- Ad sidebar -->
-  <div class="ad-container ad-sidebar">
+  <div class="card dashboard" id="dashboardPanel" style="display:none;">
+    <h3>📜 Historial de cálculos</h3>
+    <div id="historyList" class="history-list"></div>
+    <button id="clearHistoryBtn" class="btn-small btn-outline">🗑️ Borrar historial</button>
+  </div>
+
+  <div class="ad-container ad-incontent">
     <div class="ad-label">Publicidad</div>
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-         data-ad-slot="1234567892"
-         data-ad-format="rectangle"></ins>
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXX" data-ad-slot="1234567893" data-ad-format="rectangle"></ins>
   </div>
 </main>
 
 <footer>
-  <p>© 2026 Calculadora Laboral MX | Datos basados en tablas SAT 2026</p>
+  <p>© 2026 NominaMx · Tu dinero real después de impuestos</p>
   <div id="legal-footer"></div>
 </footer>
 
-<!-- Ad bottom -->
-<div class="ad-container ad-bottom">
-  <div class="ad-label">Publicidad</div>
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-XXXXXXXXXXXXXX"
-       data-ad-slot="1234567891"
-       data-ad-format="auto"></ins>
-</div>
-
-<!-- Scripts -->
 <script src="data/isr-tablas.js"></script>
-<script src="data/subsidio-tablas.js"></script>
 <script src="js/config.js"></script>
 <script src="js/calculator/isr.js"></script>
 <script src="js/calculator/imss.js"></script>
@@ -163,7 +163,10 @@
 <script src="js/ui/theme.js"></script>
 <script src="js/ui/language.js"></script>
 <script src="js/ui/charts.js"></script>
-<script src="js/ads.js"></script>
+<script src="js/ui/simulator.js"></script>
+<script src="js/ui/insights.js"></script>
+<script src="js/ui/history.js"></script>
+<script src="js/storage.js"></script>
 <script src="js/legal.js"></script>
 <script src="js/app.js"></script>
 </body>
