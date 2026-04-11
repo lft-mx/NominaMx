@@ -1,6 +1,5 @@
 // ============================================================
-// MÓDULO PRINCIPAL DE NÓMINA
-// Integra todos los cálculos
+// MÓDULO PRINCIPAL DE NÓMINA (con prima dominical y SBC auto)
 // ============================================================
 
 const CalculadoraNomina = {
@@ -9,40 +8,57 @@ const CalculadoraNomina = {
       sueldoPeriodo,
       tipoPeriodo,
       bonos = 0,
+      domingosTrabajados = 0,
       infonavit = 0,
       valesDespensa = 0,
       fondoAhorro = 0,
-      sbcDiario
+      sbcManual = null   // Si el usuario ingresa un valor manual
     } = datos;
     
     const periodo = CONFIG.periodos[tipoPeriodo];
-    const diasTrabajados = periodo.dias;
+    const diasPeriodo = periodo.dias;
     
-    // 1. Percepciones
+    // Calcular percepciones (incluye prima dominical)
     const percepciones = CalculadorPercepciones.calcular({
       sueldoPeriodo,
+      diasPeriodo,
       bonos,
+      domingosTrabajados,
       valesDespensa,
       fondoAhorroEmpleado: fondoAhorro
     });
     
-    // 2. ISR
+    // Calcular SBC automático o manual
+    const sbcDiario = CalculadorIMSS.calcularSBC(
+      sueldoPeriodo,
+      diasPeriodo,
+      bonos,
+      percepciones.detalle.primaDominical,
+      sbcManual
+    );
+    
+    // ISR
     const isrResult = CalculadorISR.calcular(percepciones.gravado, tipoPeriodo);
     
-    // 3. IMSS
-    const imss = CalculadorIMSS.calcular(sbcDiario, diasTrabajados);
+    // IMSS
+    const imss = CalculadorIMSS.calcular(sbcDiario, diasPeriodo);
     
-    // 4. Deducciones totales
+    // Deducciones totales
     const deducciones = isrResult.isrPeriodo + imss + infonavit + fondoAhorro;
     
-    // 5. Neto
+    // Neto
     const neto = percepciones.total - deducciones;
     
-    // 6. Método directo para comparación
+    // ISR directo para comparación
     const isrDirecto = CalculadorISR.calcularDirecto(percepciones.gravado, tipoPeriodo);
     
     return {
       percepciones,
+      sbc: {
+        diario: sbcDiario,
+        manual: sbcManual !== null,
+        explicacion: CalculadorIMSS.explicacionSBC()
+      },
       isr: isrResult,
       imss,
       infonavit,
@@ -58,15 +74,22 @@ const CalculadoraNomina = {
   },
   
   calcularNetoABruto(netoDeposito, tipoPeriodo, sbcDiario) {
-    // Estimación inversa simplificada
     const periodo = CONFIG.periodos[tipoPeriodo];
-    const factorEstimado = 0.85; // Aproximación
-    const estimadoBruto = netoDeposito / factorEstimado;
-    const imssEstimado = CalculadorIMSS.calcular(sbcDiario, periodo.dias);
-    const isrEstimado = estimadoBruto * 0.10;
-    
+    let brutoEstimado = netoDeposito;
+    let isrEstimado = 0;
+    let imssEstimado = 0;
+    let netoCalc = 0;
+    let iter = 0;
+    while (Math.abs(netoCalc - netoDeposito) > 1 && iter < 10) {
+      isrEstimado = CalculadorISR.calcular(brutoEstimado, tipoPeriodo).isrPeriodo;
+      imssEstimado = CalculadorIMSS.calcular(sbcDiario, periodo.dias);
+      netoCalc = brutoEstimado - isrEstimado - imssEstimado;
+      const error = netoDeposito - netoCalc;
+      brutoEstimado += error * 0.9;
+      iter++;
+    }
     return {
-      brutoEstimado: Math.round(estimadoBruto * 100) / 100,
+      brutoEstimado: Math.round(brutoEstimado * 100) / 100,
       isrEstimado: Math.round(isrEstimado * 100) / 100,
       imssEstimado,
       neto: netoDeposito
