@@ -3,19 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculadora Laboral México</title>
-<script>
-  const v = new Date().getTime();
-  document.write('<link rel="stylesheet" href="css/styles.css?v=' + v + '">');
-</script>
+<title>Calculadora Laboral México | Sueldo Neto, ISR, IMSS 2026</title>
+<meta name="description" content="Calcula tu sueldo neto después de impuestos. ISR, IMSS, Infonavit y fondo de ahorro.">
+<meta name="google-adsense-account" content="ca-pub-XXXXXXXXXXXXXX">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
+<!-- Espacio publicitario top -->
+<div class="ad-container ad-top">
+  <div class="ad-label">Publicidad</div>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+       data-ad-slot="1234567890"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+
 <header>
-  <h1 id="titulo">Calculadora Laboral México</h1>
+  <h1 id="titulo">💰 Calculadora Laboral México</h1>
   <div class="controls">
-    <button id="modo-btn" onclick="toggleModo()">🌙</button>
-    <div class="lang-switch" onclick="toggleIdioma()">
+    <button class="theme-btn" id="themeBtn">🌙</button>
+    <div class="lang-switch" id="langSwitch">
       <span class="lang es">🇲🇽</span>
       <span class="lang en">🇺🇸</span>
       <div class="slider"></div>
@@ -23,81 +34,137 @@
   </div>
 </header>
 
-<main>
-  <section class="card">
-    <!-- TABS -->
+<main class="container">
+  <div class="card">
     <div class="tabs">
-      <button class="tab active" onclick="cambiarModo('bruto')">Sueldo Bruto</button>
-      <button class="tab" onclick="cambiarModo('neto')">Sueldo Neto</button>
+      <button class="tab active" data-modo="bruto">📈 Sueldo Bruto → Neto</button>
+      <button class="tab" data-modo="neto">📉 Sueldo Neto → Bruto</button>
     </div>
-  
-    <div class="mensaje-neto-container">
-      <div class="mensaje-neto-text" id="mensajeNetoBtn">
-        💡 <span id="mensajeNeto">Sueldo neto = Lo que realmente recibes después de impuestos</span>
-        <span class="info-icon">ⓘ</span>
+
+    <!-- MODO BRUTO -->
+    <div id="modoBruto">
+      <div class="row-2cols">
+        <div class="form-group">
+          <label>💰 Sueldo por periodo</label>
+          <input type="number" id="sueldo" value="8500">
+        </div>
+        <div class="form-group">
+          <label>📅 Periodo de pago</label>
+          <select id="periodo">
+            <option value="mensual">Mensual</option>
+            <option value="quincenal" selected>Quincenal</option>
+            <option value="semanal">Semanal</option>
+          </select>
+        </div>
       </div>
-      <div id="cloudBubble" class="cloud-bubble hidden">
-        💰 <strong id="cloudText">¿Cuánto te depositan?</strong><br>
-        <span id="cloudSubtext">Usa el sueldo neto para calcular cuánto te retienen</span>
+      <div class="row-2cols">
+        <div class="form-group">
+          <label>🎯 Bonos / Comisiones</label>
+          <input type="number" id="bonos" value="0">
+        </div>
+        <div class="form-group">
+          <label>🏠 Descuento Infonavit</label>
+          <input type="number" id="infonavit" value="0">
+        </div>
+      </div>
+      <div class="row-2cols">
+        <div class="form-group">
+          <label>🛒 Vales de despensa</label>
+          <input type="number" id="valesDespensa" value="0">
+        </div>
+        <div class="form-group">
+          <label>🏦 Fondo de ahorro (tu aportación)</label>
+          <input type="number" id="fondoAhorro" value="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>💰 Salario Base de Cotización SBC (diario)</label>
+        <input type="number" id="sbc" value="350">
+        <small>Usado para calcular IMSS</small>
       </div>
     </div>
-  
-    <!-- INPUTS MODO BRUTO -->
-    <div id="brutoInputs">
-      <label>Periodo de pago 🗓️</label>
-      <select id="periodo">
-        <option value="mensual">Mensual</option>
-        <option value="quincenal">Quincenal</option>
-        <option value="semanal">Semanal</option>
-      </select>
-      
-      <label>Sueldo 💵</label>
-      <input type="number" id="salario" placeholder="Ej: 15000" oninput="formatMoney(this)">
-      
-      <label>Días trabajados 👷</label>
-      <input type="number" id="dias" placeholder="Ej: 15 o 30" value="30">
-      
-      <label>Bonos / comisiones 🎯</label>
-      <input type="number" id="bonos" placeholder="Opcional" oninput="formatMoney(this)">
-      
-      <label>Descuento Infonavit 🏠</label>
-      <input type="number" id="infonavit" placeholder="Opcional" oninput="formatMoney(this)">
-      
-      <label>Fondo de Ahorro (aportación voluntaria) 🏦</label>
-      <input type="number" id="fondoAhorro" placeholder="Ej: 500 - lo que aportas tú" oninput="formatMoney(this)">
+
+    <!-- MODO NETO -->
+    <div id="modoNeto" style="display:none;">
+      <div class="form-group">
+        <label>💵 ¿Cuánto te depositan?</label>
+        <input type="number" id="netoDeposito" value="7200">
+      </div>
+      <div class="form-group">
+        <label>📅 Periodo de pago</label>
+        <select id="periodoNeto">
+          <option value="mensual">Mensual</option>
+          <option value="quincenal" selected>Quincenal</option>
+          <option value="semanal">Semanal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>💰 Salario Base de Cotización SBC (diario)</label>
+        <input type="number" id="sbcNeto" value="350">
+      </div>
     </div>
-  
-    <!-- INPUT MODO NETO -->
-    <div id="netoInputs" style="display:none;">
-      <label>¿Cuánto te depositan? 💵</label>
-      <input type="number" id="netoInput" placeholder="Ej: 12000" oninput="formatMoney(this)">
-      <p class="fondo-ahorro-info">💡 Si tienes fondo de ahorro, réstalo de tu depósito para mejor precisión</p>
+
+    <button class="btn" id="btnCalcular">🔢 Calcular sueldo neto</button>
+
+    <!-- Ad in-content -->
+    <div class="ad-container ad-incontent">
+      <div class="ad-label">Publicidad</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+           data-ad-slot="1234567893"
+           data-ad-format="rectangle"></ins>
     </div>
-  
-    <!-- BOTÓN -->
-    <button class="btn" id="btnSueldo" onclick="calcularSueldo()">Calcular</button>
-  
-    <!-- RESULTADO -->
-    <div id="resultado"></div>
-    <canvas id="grafica" style="margin-top:20px;"></canvas>
-  </section>
+
+    <div id="resultados" class="resultado" style="display:none;">
+      <h3 id="resumenTitulo">📊 Resumen de nómina</h3>
+      <div id="detalleResultados"></div>
+      <div class="grafica-container">
+        <canvas id="graficaPorcentajes"></canvas>
+      </div>
+      <div id="comparacionMetodos" class="comparacion"></div>
+    </div>
+  </div>
+
+  <!-- Ad sidebar -->
+  <div class="ad-container ad-sidebar">
+    <div class="ad-label">Publicidad</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+         data-ad-slot="1234567892"
+         data-ad-format="rectangle"></ins>
+  </div>
 </main>
 
 <footer>
-  <p>© 2026 LFT MX</p>
+  <p>© 2026 Calculadora Laboral MX | Datos basados en tablas SAT 2026</p>
+  <div id="legal-footer"></div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/ui.js"></script>
+<!-- Ad bottom -->
+<div class="ad-container ad-bottom">
+  <div class="ad-label">Publicidad</div>
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXXXXXXXX"
+       data-ad-slot="1234567891"
+       data-ad-format="auto"></ins>
+</div>
 
-<script>
-// Nube flotante
-document.getElementById('mensajeNetoBtn').addEventListener('mouseenter', function() {
-  document.getElementById('cloudBubble').classList.remove('hidden');
-});
-document.getElementById('mensajeNetoBtn').addEventListener('mouseleave', function() {
-  document.getElementById('cloudBubble').classList.add('hidden');
-});
-</script>
+<!-- Scripts -->
+<script src="data/isr-tablas.js"></script>
+<script src="data/subsidio-tablas.js"></script>
+<script src="js/config.js"></script>
+<script src="js/calculator/isr.js"></script>
+<script src="js/calculator/imss.js"></script>
+<script src="js/calculator/percepciones.js"></script>
+<script src="js/calculator/nomina.js"></script>
+<script src="js/ui/theme.js"></script>
+<script src="js/ui/language.js"></script>
+<script src="js/ui/charts.js"></script>
+<script src="js/ads.js"></script>
+<script src="js/legal.js"></script>
+<script src="js/app.js"></script>
 </body>
-  </html>
+</html>
