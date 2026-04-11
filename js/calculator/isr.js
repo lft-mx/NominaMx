@@ -1,26 +1,9 @@
-// ============================================================
-// MÓDULO ISR + SUBSIDIO FIJO 2026
-// ============================================================
-
-const SUBSIDIO_MENSUAL_MAXIMO = 535.65;    // 15.02% de UMA mensual 2026
-const LIMITE_INGRESO_SUBSIDIO = 11492.66;  // Límite para recibir subsidio
-
 const CalculadorISR = {
-  /**
-   * Calcula el ISR neto con subsidio fijo.
-   */
   calcular(ingresoGravadoPeriodo, tipoPeriodo) {
-    const factores = {
-      mensual: { aMensual: 1, aPeriodo: 1 },
-      quincenal: { aMensual: 2, aPeriodo: 0.5 },
-      semanal: { aMensual: 4.33, aPeriodo: 0.2309 }
-    };
-    const factor = factores[tipoPeriodo] || factores.quincenal;
+    const factor = CONFIG.periodos[tipoPeriodo];
+    const ingresoMensual = ingresoGravadoPeriodo * factor.factorMensual;
     
-    // Ingreso mensual
-    const ingresoMensual = ingresoGravadoPeriodo * factor.aMensual;
-    
-    // ISR bruto mensual (sin subsidio)
+    // ISR bruto mensual con tabla oficial
     let isrBrutoMensual = 0;
     for (let i = 0; i < ISR_TABLAS_MENSUAL.limiteSuperior.length; i++) {
       if (ingresoMensual <= ISR_TABLAS_MENSUAL.limiteSuperior[i]) {
@@ -31,20 +14,16 @@ const CalculadorISR = {
     }
     isrBrutoMensual = Math.round(isrBrutoMensual * 100) / 100;
     
-    // Subsidio mensual (fijo si ingreso <= límite)
+    // Subsidio fijo mensual (solo si ingreso mensual <= límite)
     let subsidioMensual = 0;
-    if (ingresoMensual <= LIMITE_INGRESO_SUBSIDIO) {
-      subsidioMensual = SUBSIDIO_MENSUAL_MAXIMO;
+    if (ingresoMensual <= CONFIG.limiteIngresoSubsidio) {
+      subsidioMensual = CONFIG.subsidioMensualMaximo;
     }
-    subsidioMensual = Math.min(subsidioMensual, isrBrutoMensual); // No puede ser mayor que el ISR
+    // El subsidio no puede ser mayor que el ISR bruto
+    subsidioMensual = Math.min(subsidioMensual, isrBrutoMensual);
     
-    // ISR neto mensual
-    let isrNetoMensual = isrBrutoMensual - subsidioMensual;
-    if (isrNetoMensual < 0) isrNetoMensual = 0;
-    isrNetoMensual = Math.round(isrNetoMensual * 100) / 100;
-    
-    // Convertir a periodo
-    const isrPeriodo = Math.round(isrNetoMensual * factor.aPeriodo * 100) / 100;
+    const isrNetoMensual = Math.max(0, isrBrutoMensual - subsidioMensual);
+    const isrPeriodo = Math.round(isrNetoMensual * factor.factorPeriodo * 100) / 100;
     
     return {
       ingresoPeriodo: ingresoGravadoPeriodo,
@@ -53,19 +32,22 @@ const CalculadorISR = {
       subsidioMensual,
       isrNetoMensual,
       isrPeriodo,
-      metodo: "Subsidio fijo 2026 (15.02% UMA)"
+      porcentajeImpuesto: (isrPeriodo / ingresoGravadoPeriodo) * 100
     };
   },
   
-  /**
-   * Método directo (tabla del periodo, sin subsidio) para comparación.
-   */
   calcularDirecto(ingresoPeriodo, tipoPeriodo) {
     let tabla;
     if (tipoPeriodo === 'mensual') tabla = ISR_TABLAS_MENSUAL;
-    else if (tipoPeriodo === 'quincenal') tabla = ISR_TABLAS_QUINCENAL;
-    else tabla = ISR_TABLAS_SEMANAL;
-    
+    else {
+      const factor = CONFIG.periodos[tipoPeriodo];
+      tabla = {
+        limiteInferior: ISR_TABLAS_MENSUAL.limiteInferior.map(v => v * factor.factorPeriodo),
+        cuotaFija: ISR_TABLAS_MENSUAL.cuotaFija.map(v => v * factor.factorPeriodo),
+        porcentaje: ISR_TABLAS_MENSUAL.porcentaje,
+        limiteSuperior: ISR_TABLAS_MENSUAL.limiteSuperior.map(v => v * factor.factorPeriodo)
+      };
+    }
     for (let i = 0; i < tabla.limiteSuperior.length; i++) {
       if (ingresoPeriodo <= tabla.limiteSuperior[i]) {
         const excedente = ingresoPeriodo - tabla.limiteInferior[i];
