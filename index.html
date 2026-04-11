@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora Laboral México</title>
+<script>
+  const v = new Date().getTime();
+  document.write('<link rel="stylesheet" href="css/styles.css?v=' + v + '">');
+</script>
+</head>
+<body>
+
+<header>
+  <h1 id="titulo">Calculadora Laboral México</h1>
+  <div class="controls">
+    <button id="modo-btn" onclick="toggleModo()">🌙</button>
+    <div class="lang-switch" onclick="toggleIdioma()">
+      <span class="lang es">🇲🇽</span>
+      <span class="lang en">🇺🇸</span>
+      <div class="slider"></div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="cambiarModo('bruto')">Sueldo Bruto</button>
+      <button class="tab" onclick="cambiarModo('neto')">Sueldo Neto</button>
+    </div>
+  
+    <div class="mensaje-neto-container">
+      <div class="mensaje-neto-text" id="mensajeNetoBtn">
+        💡 <span id="mensajeNeto">Sueldo neto = Lo que realmente recibes después de impuestos</span>
+        <span class="info-icon">ⓘ</span>
+      </div>
+      <div id="cloudBubble" class="cloud-bubble hidden">
+        💰 <strong id="cloudText">¿Cuánto te depositan?</strong><br>
+        <span id="cloudSubtext">Usa el sueldo neto para calcular cuánto te retienen</span>
+      </div>
+    </div>
+  
+    <!-- INPUTS MODO BRUTO -->
+    <div id="brutoInputs">
+      <label>Periodo de pago 🗓️</label>
+      <select id="periodo">
+        <option value="mensual">Mensual</option>
+        <option value="quincenal">Quincenal</option>
+        <option value="semanal">Semanal</option>
+      </select>
+      
+      <label>Sueldo 💵</label>
+      <input type="number" id="salario" placeholder="Ej: 15000" oninput="formatMoney(this)">
+      
+      <label>Días trabajados 👷</label>
+      <input type="number" id="dias" placeholder="Ej: 15 o 30" value="30">
+      
+      <label>Bonos / comisiones 🎯</label>
+      <input type="number" id="bonos" placeholder="Opcional" oninput="formatMoney(this)">
+      
+      <label>Descuento Infonavit 🏠</label>
+      <input type="number" id="infonavit" placeholder="Opcional" oninput="formatMoney(this)">
+      
+      <label>Fondo de Ahorro (aportación voluntaria) 🏦</label>
+      <input type="number" id="fondoAhorro" placeholder="Ej: 500 - lo que aportas tú" oninput="formatMoney(this)">
+    </div>
+  
+    <!-- INPUT MODO NETO -->
+    <div id="netoInputs" style="display:none;">
+      <label>¿Cuánto te depositan? 💵</label>
+      <input type="number" id="netoInput" placeholder="Ej: 12000" oninput="formatMoney(this)">
+      <p class="fondo-ahorro-info">💡 Si tienes fondo de ahorro, réstalo de tu depósito para mejor precisión</p>
+    </div>
+  
+    <!-- BOTÓN -->
+    <button class="btn" id="btnSueldo" onclick="calcularSueldo()">Calcular</button>
+  
+    <!-- RESULTADO -->
+    <div id="resultado"></div>
+    <canvas id="grafica" style="margin-top:20px;"></canvas>
+  </section>
+</main>
+
+<footer>
+  <p>© 2026 LFT MX</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/ui.js"></script>
+
+<script>
+// Nube flotante
+document.getElementById('mensajeNetoBtn').addEventListener('mouseenter', function() {
+  document.getElementById('cloudBubble').classList.remove('hidden');
+});
+document.getElementById('mensajeNetoBtn').addEventListener('mouseleave', function() {
+  document.getElementById('cloudBubble').classList.add('hidden');
+});
+</script>
+</body>
+  </html>
