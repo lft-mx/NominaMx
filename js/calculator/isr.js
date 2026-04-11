@@ -1,60 +1,75 @@
 // ============================================================
-// MÓDULO ISR + SUBSIDIO
-// Regla: Se calcula sobre ingreso mensual, luego se divide
+// MÓDULO ISR + SUBSIDIO FIJO 2026
 // ============================================================
 
+const SUBSIDIO_MENSUAL_MAXIMO = 535.65;    // 15.02% de UMA mensual 2026
+const LIMITE_INGRESO_SUBSIDIO = 11492.66;  // Límite para recibir subsidio
+
 const CalculadorISR = {
-  // Calcular ISR neto (ya con subsidio) para un periodo
-  calcular(ingresoPeriodo, tipoPeriodo) {
-    const periodo = CONFIG.periodos[tipoPeriodo];
-    if (!periodo) return 0;
+  /**
+   * Calcula el ISR neto con subsidio fijo.
+   */
+  calcular(ingresoGravadoPeriodo, tipoPeriodo) {
+    const factores = {
+      mensual: { aMensual: 1, aPeriodo: 1 },
+      quincenal: { aMensual: 2, aPeriodo: 0.5 },
+      semanal: { aMensual: 4.33, aPeriodo: 0.2309 }
+    };
+    const factor = factores[tipoPeriodo] || factores.quincenal;
     
-    const ingresoMensual = ingresoPeriodo * periodo.factorMensual;
+    // Ingreso mensual
+    const ingresoMensual = ingresoGravadoPeriodo * factor.aMensual;
     
-    // Calcular ISR mensual bruto
-    let isrMensual = 0;
+    // ISR bruto mensual (sin subsidio)
+    let isrBrutoMensual = 0;
     for (let i = 0; i < ISR_TABLAS_MENSUAL.limiteSuperior.length; i++) {
       if (ingresoMensual <= ISR_TABLAS_MENSUAL.limiteSuperior[i]) {
         const excedente = ingresoMensual - ISR_TABLAS_MENSUAL.limiteInferior[i];
-        isrMensual = ISR_TABLAS_MENSUAL.cuotaFija[i] + (excedente * ISR_TABLAS_MENSUAL.porcentaje[i]);
+        isrBrutoMensual = ISR_TABLAS_MENSUAL.cuotaFija[i] + (excedente * ISR_TABLAS_MENSUAL.porcentaje[i]);
         break;
       }
     }
+    isrBrutoMensual = Math.round(isrBrutoMensual * 100) / 100;
     
-    // Calcular subsidio mensual
+    // Subsidio mensual (fijo si ingreso <= límite)
     let subsidioMensual = 0;
-    for (let i = 0; i < SUBSIDIO_TABLAS_MENSUAL.limiteSuperior.length; i++) {
-      if (ingresoMensual <= SUBSIDIO_TABLAS_MENSUAL.limiteSuperior[i]) {
-        subsidioMensual = SUBSIDIO_TABLAS_MENSUAL.subsidioMensual[i];
-        break;
-      }
+    if (ingresoMensual <= LIMITE_INGRESO_SUBSIDIO) {
+      subsidioMensual = SUBSIDIO_MENSUAL_MAXIMO;
     }
+    subsidioMensual = Math.min(subsidioMensual, isrBrutoMensual); // No puede ser mayor que el ISR
     
-    const isrNetoMensual = Math.max(0, isrMensual - subsidioMensual);
-    const isrPeriodo = isrNetoMensual * periodo.factorPeriodo;
+    // ISR neto mensual
+    let isrNetoMensual = isrBrutoMensual - subsidioMensual;
+    if (isrNetoMensual < 0) isrNetoMensual = 0;
+    isrNetoMensual = Math.round(isrNetoMensual * 100) / 100;
+    
+    // Convertir a periodo
+    const isrPeriodo = Math.round(isrNetoMensual * factor.aPeriodo * 100) / 100;
     
     return {
-      ingresoPeriodo,
+      ingresoPeriodo: ingresoGravadoPeriodo,
       ingresoMensual,
-      isrBrutoMensual: isrMensual,
+      isrBrutoMensual,
       subsidioMensual,
       isrNetoMensual,
-      isrPeriodo: Math.round(isrPeriodo * 100) / 100,
-      metodo: "Mensual + subsidio (más común)"
+      isrPeriodo,
+      metodo: "Subsidio fijo 2026 (15.02% UMA)"
     };
   },
   
-  // Método directo con tabla quincenal (para comparación)
+  /**
+   * Método directo (tabla del periodo, sin subsidio) para comparación.
+   */
   calcularDirecto(ingresoPeriodo, tipoPeriodo) {
-    let tablas;
-    if (tipoPeriodo === 'mensual') tablas = ISR_TABLAS_MENSUAL;
-    else if (tipoPeriodo === 'quincenal') tablas = ISR_TABLAS_QUINCENAL;
-    else tablas = ISR_TABLAS_SEMANAL;
+    let tabla;
+    if (tipoPeriodo === 'mensual') tabla = ISR_TABLAS_MENSUAL;
+    else if (tipoPeriodo === 'quincenal') tabla = ISR_TABLAS_QUINCENAL;
+    else tabla = ISR_TABLAS_SEMANAL;
     
-    for (let i = 0; i < tablas.limiteSuperior.length; i++) {
-      if (ingresoPeriodo <= tablas.limiteSuperior[i]) {
-        const excedente = ingresoPeriodo - tablas.limiteInferior[i];
-        return Math.round((tablas.cuotaFija[i] + (excedente * tablas.porcentaje[i])) * 100) / 100;
+    for (let i = 0; i < tabla.limiteSuperior.length; i++) {
+      if (ingresoPeriodo <= tabla.limiteSuperior[i]) {
+        const excedente = ingresoPeriodo - tabla.limiteInferior[i];
+        return Math.round((tabla.cuotaFija[i] + (excedente * tabla.porcentaje[i])) * 100) / 100;
       }
     }
     return 0;
